@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Griffit | Web Development</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo-griffit">
+                <span class="logo-text">Griffit</span>
+                <div class="griffith-face">
+                    <img src="assets/images/griffith-face.png" alt="Griffith">
+                </div>
+            </div>
+            <div class="nav-right">
+                <div class="lang-switcher">
+                    <button class="lang-btn active" data-lang="en">EN</button>
+                    <button class="lang-btn" data-lang="uk">UK</button>
+                    <button class="lang-btn" data-lang="ru">RU</button>
+                </div>
+                <button class="theme-toggle" id="themeToggle">
+                    <span class="theme-icon">🌙</span>
+                </button>
+                <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Мобильное меню -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#home" data-key="nav_home">Home</a>
+        <a href="#services" data-key="nav_services">Services</a>
+        <a href="#portfolio" data-key="nav_portfolio">Portfolio</a>
+        <a href="#about" data-key="nav_about">About</a>
+        <a href="#contact" data-key="nav_contact">Contact</a>
+    </div>
+
+    <!-- Hero секция -->
+    <section id="home" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title" data-key="hero_title">We Create Digital Future</h1>
+                <p class="hero-subtitle" data-key="hero_subtitle">Modern websites and e-commerce solutions for your business</p>
+                <div class="hero-buttons">
+                    <a href="#contact" class="btn btn-primary" data-key="btn_start">Start Project</a>
+                    <a href="#portfolio" class="btn btn-secondary" data-key="btn_works">Our Works</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="floating-card card-1">🎨 Design</div>
+                <div class="floating-card card-2">💻 Development</div>
+                <div class="floating-card card-3">🚀 Launch</div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span></span>
+        </div>
+    </section>
+
+    <!-- Услуги -->
+    <section id="services" class="services">
+        <div class="container">
+            <h2 class="section-title" data-key="services_title">Our Services</h2>
+            <p class="section-subtitle" data-key="services_subtitle">From idea to ready-to-use product</p>
+            
+            <div class="services-grid">
+                <div class="service-card" data-aos="fade-up">
+                    <div class="service-icon">🛒</div>
+                    <h3 data-key="service_shop">Online Stores</h3>
+                    <p data-key="service_shop_desc">Full-featured e-commerce with payment integration, cart, and admin panel</p>
+                    <div class="service-price">€60</div>
+                    <a href="#contact" class="service-cta" data-key="order_now">Order Now →</a>
+                </div>
+                
+                <div class="service-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="service-icon">🏢</div>
+                    <h3 data-key="service_business">Business Websites</h3>
+                    <p data-key="service_business_desc">Corporate sites, landing pages, portfolios that convert visitors to clients</p>
+                    <div class="service-price">€60</div>
+                    <a href="#contact" class="service-cta" data-key="order_now">Order Now →</a>
+                </div>
+                
+                <div class="service-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="service-icon">🎨</div>
+                    <h3 data-key="service_design">UI/UX Design</h3>
+                    <p data-key="service_design_desc">Modern, user-friendly interfaces that make your brand stand out</p>
+                    <div class="service-price">€40</div>
+                    <a href="#contact" class="service-cta" data-key="order_now">Order Now →</a>
+                </div>
+                
+                <div class="service-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="service-icon">🔧</div>
+                    <h3 data-key="service_support">Monthly Support</h3>
+                    <p data-key="service_support_desc">Updates, bug fixes, code changes, content updates</p>
+                    <div class="service-price">€20<span>/month</span></div>
+                    <a href="#contact" class="service-cta" data-key="order_now">Order Now →</a>
+                </div>
+            </div>
+            
+            <div class="pricing-banner" data-aos="fade-up">
+                <div class="pricing-banner-content">
+                    <h3 data-key="pricing_banner_title">Ready to start?</h3>
+                    <p data-key="pricing_banner_text">Website from €60 • Support from €20/month</p>
+                    <a href="#contact" class="btn btn-primary btn-large" data-key="get_started">Get Started Today</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Портфолио -->
+    <section id="portfolio" class="portfolio">
+        <div class="container">
+            <h2 class="section-title" data-key="portfolio_title">Our Works</h2>
+            <p class="section-subtitle" data-key="portfolio_subtitle">Projects we are proud of</p>
+            
+            <div class="portfolio-notice" data-aos="fade-up">
+                <span class="notice-icon">💡</span>
+                <p data-key="portfolio_notice">These are examples of our capabilities. You can order any website according to your wishes — from simple landing pages to complex e-commerce solutions.</p>
+            </div>
+            
+            <div class="portfolio-grid">
+                <a href="examples/fashion-store/index.html" class="portfolio-item" data-aos="fade-up">
+                    <div class="portfolio-image">
+                        <img src="assets/images/project1.jpg" alt="Fashion Store">
+                        <div class="portfolio-overlay">
+                            <span class="view-btn" data-key="view_project">View Live Site →</span>
+                        </div>
+                    </div>
+                    <div class="portfolio-info">
+                        <h3>Luxe Fashion</h3>
+                        <p data-key="project1_desc">Premium clothing store with Stripe payments and admin panel</p>
+                        <div class="portfolio-tags">
+                            <span>E-commerce</span>
+                            <span>React</span>
+                            <span>Node.js</span>
+                        </div>
+                    </div>
+                </a>
+                
+                <a href="examples/techflow/index.html" class="portfolio-item" data-aos="fade-up" data-aos-delay="100">
+                    <div class="portfolio-image">
+                        <img src="assets/images/project2.jpg" alt="Tech Startup">
+                        <div class="portfolio-overlay">
+                            <span class="view-btn" data-key="view_project">View Live Site →</span>
+                        </div>
+                    </div>
+                    <div class="portfolio-info">
+                        <h3>TechFlow</h3>
+                        <p data-key="project2_desc">SaaS landing page with animations and CRM integration</p>
+                        <div class="portfolio-tags">
+                            <span>Landing</span>
+                            <span>Vue.js</span>
+                            <span>GSAP</span>
+                        </div>
+                    </div>
+                </a>
+                
+                <a href="examples/urban-cafe/index.html" class="portfolio-item" data-aos="fade-up" data-aos-delay="200">
+                    <div class="portfolio-image">
+                        <img src="assets/images/project3.jpg" alt="Cafe Website">
+                        <div class="portfolio-overlay">
+                            <span class="view-btn" data-key="view_project">View Live Site →</span>
+                        </div>
+                    </div>
+                    <div class="portfolio-info">
+                        <h3>Urban Cafe</h3>
+                        <p data-key="project3_desc">Restaurant website with online booking and menu management</p>
+                        <div class="portfolio-tags">
+                            <span>Business</span>
+                            <span>WordPress</span>
+                            <span>PHP</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- О нас -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2 class="section-title" data-key="about_title">About Griffit</h2>
+                    <p data-key="about_p1">We are a young team of two from Ukraine, passionate about creating beautiful and functional websites.</p>
+                    <p data-key="about_p2">From simple landing pages to complex e-commerce solutions — we handle every project with care and attention to detail.</p>
+                    <p data-key="about_p3">Your digital partner from idea to result.</p>
+                    
+                    <div class="stats">
+                        <div class="stat">
+                            <span class="stat-number">2</span>
+                            <span class="stat-label" data-key="stat_team">Team members</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">10+</span>
+                            <span class="stat-label" data-key="stat_projects">Projects</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">100%</span>
+                            <span class="stat-label" data-key="stat_dedication">Dedication</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-visual">
+                    <div class="about-circle"></div>
+                    <div class="about-dots"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Контакты -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2 class="section-title" data-key="contact_title">Let's Work Together</h2>
+            <p class="section-subtitle" data-key="contact_subtitle">Have a project in mind? Let's discuss it!</p>
+            
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <span class="contact-icon">📧</span>
+                        <div>
+                            <h4>Email</h4>
+                            <a href="mailto:devstem66@gmail.com">devstem66@gmail.com</a>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-icon">💬</span>
+                        <div>
+                            <h4>Telegram</h4>
+                            <a href="https://t.me/GRIFFITWEB" target="_blank">@GRIFFITWEB</a>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-icon">📍</span>
+                        <div>
+                            <h4 data-key="contact_location">Location</h4>
+                            <span data-key="contact_city">Ukraine</span>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-prices">
+                        <h4 data-key="quick_prices">Quick Prices</h4>
+                        <div class="price-tag">
+                            <span>Website</span>
+                            <strong>from €60</strong>
+                        </div>
+                        <div class="price-tag">
+                            <span>Support</span>
+                            <strong>€20/mo</strong>
+                        </div>
+                        <div class="price-tag">
+                            <span>Design</span>
+                            <strong>from €40</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <form class="contact-form" id="contactForm">
+                    <div class="form-group">
+                        <input type="text" name="name" id="name" required placeholder=" ">
+                        <label for="name" data-key="form_name">Your Name</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" name="email" id="email" required placeholder=" ">
+                        <label for="email" data-key="form_email">Your Email</label>
+                    </div>
+                    <div class="form-group">
+                        <select name="service" id="service" required>
+                            <option value="" disabled selected data-key="select_service">Select service...</option>
+                            <option value="online-store">Online Store (€60+)</option>
+                            <option value="business-website">Business Website (€60+)</option>
+                            <option value="design">UI/UX Design (€40+)</option>
+                            <option value="support">Monthly Support (€20/mo)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <textarea name="message" id="message" rows="4" required placeholder=" "></textarea>
+                        <label for="message" data-key="form_message">Tell us about your project</label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full" data-key="form_send">Send Message</button>
+                    
+                    <p class="form-note" data-key="form_note">We reply within 24 hours</p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Футер -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="logo-griffit">
+                    <span class="logo-text">Griffit</span>
+                    <div class="griffith-face">
+                        <img src="assets/images/griffith-face.png" alt="Griffith">
+                    </div>
+                </div>
+                <p class="footer-text" data-key="footer_text">Creating digital experiences since 2024</p>
+                <div class="footer-links">
+                    <a href="mailto:devstem66@gmail.com">Email</a>
+                    <a href="https://t.me/GRIFFITWEB" target="_blank">Telegram</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Griffit. <span data-key="footer_rights">All rights reserved.</span></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    
+    <script src="js/main.js"></script>
+</body>
+</html>
